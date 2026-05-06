@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+logs/
+*.tsbuildinfo
+coverage/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  user-service:
+    build: .
+    container_name: a07-user-service
+    ports:
+      - "50051:50051"
+    environment:
+      SERVICE_NAME: user
+      GRPC_PORT: 50051
+      NODE_ENV: production
+    command: ["node", "dist/user-service/index.js"]
+
+  order-service:
+    build: .
+    container_name: a07-order-service
+    ports:
+      - "50052:50052"
+    environment:
+      SERVICE_NAME: order
+      GRPC_PORT: 50052
+      USER_SERVICE_ADDR: user-service:50051
+      NODE_ENV: production
+    command: ["node", "dist/order-service/index.js"]
+    depends_on:
+      - user-service
+
+  gateway:
+    build: .
+    container_name: a07-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      USER_SERVICE_ADDR: user-service:50051
+      ORDER_SERVICE_ADDR: order-service:50052
+      PORT: 3000
+      NODE_ENV: production
+    command: ["node", "dist/gateway/index.js"]
+    depends_on:
+      - user-service
+      - order-service

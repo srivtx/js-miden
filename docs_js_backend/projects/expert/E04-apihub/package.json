@@ -1,0 +1,41 @@
+{
+  "name": "apihub",
+  "version": "1.0.0",
+  "description": "API Marketplace - Multi-service architecture for API management, billing, and analytics",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b",
+    "dev:gateway": "node --loader ts-node/esm services/gateway/src/index.ts",
+    "dev:auth": "node --loader ts-node/esm services/auth/src/index.ts",
+    "dev:usage": "node --loader ts-node/esm services/usage/src/index.ts",
+    "dev:billing": "node --loader ts-node/esm services/billing/src/index.ts",
+    "dev:portal": "node --loader ts-node/esm services/developer-portal/src/index.ts",
+    "dev:analytics": "node --loader ts-node/esm services/analytics/src/index.ts",
+    "test": "NODE_OPTIONS='--loader ts-node/esm' mocha --recursive 'services/*/tests/**/*.test.ts' 'tests/integration/**/*.test.ts'",
+    "test:unit": "NODE_OPTIONS='--loader ts-node/esm' mocha --recursive 'services/*/tests/**/*.test.ts'",
+    "test:integration": "NODE_OPTIONS='--loader ts-node/esm' mocha --recursive 'tests/integration/**/*.test.ts'",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down"
+  },
+  "workspaces": [
+    "services/*"
+  ],
+  "devDependencies": {
+    "@types/chai": "^4.3.11",
+    "@types/express": "^5.0.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.0",
+    "chai": "^4.3.10",
+    "@types/supertest": "^6.0.2",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "express": "^5.0.0",
+    "ioredis": "^5.3.2",
+    "uuid": "^9.0.1",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

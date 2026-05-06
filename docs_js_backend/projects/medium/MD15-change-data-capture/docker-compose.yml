@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: md15-postgres
+    environment:
+      POSTGRES_USER: cdc
+      POSTGRES_PASSWORD: cdc123
+      POSTGRES_DB: cdc
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cdc -d cdc"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: md15-app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://cdc:cdc123@postgres:5432/cdc
+      NODE_ENV: production
+      PORT: 3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:

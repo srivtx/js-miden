@@ -1,0 +1,24 @@
+{
+  "name": "s19-data-pipeline",
+  "version": "1.0.0",
+  "description": "ETL Data Pipeline",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node --loader ts-node/esm src/index.ts",
+    "dev": "node --watch --loader ts-node/esm src/index.ts",
+    "test": "node --test tests/**/*.test.ts"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.3",
+    "express": "^5.0.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0"
+  }
+}

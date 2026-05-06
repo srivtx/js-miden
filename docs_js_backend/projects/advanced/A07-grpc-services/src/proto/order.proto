@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package orders;
+
+import "user.proto";
+
+service OrderService {
+  rpc CreateOrder(CreateOrderRequest) returns (Order);
+  rpc GetOrder(GetOrderRequest) returns (Order);
+  rpc ListUserOrders(ListUserOrdersRequest) returns (stream Order);
+}
+
+message CreateOrderRequest {
+  string user_id = 1;
+  int64 total_cents = 2;
+  repeated OrderItem items = 3;
+}
+
+message GetOrderRequest {
+  string id = 1;
+}
+
+message ListUserOrdersRequest {
+  string user_id = 1;
+}
+
+message OrderItem {
+  string sku = 1;
+  int32 quantity = 2;
+  int64 unit_price_cents = 3;
+}
+
+// v2 renamed total_cents -> amount_cents to demonstrate proto mismatch
+message Order {
+  string id = 1;
+  string user_id = 2;
+  int64 amount_cents = 3;  // was total_cents in v1
+  string status = 4;
+  repeated OrderItem items = 5;
+  string created_at = 6;
+}

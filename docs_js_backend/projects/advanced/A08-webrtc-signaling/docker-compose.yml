@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  signaling:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - WS_PORT=3001
+    depends_on:
+      - redis
+      - turn
+
+  turn:
+    image: coturn/coturn:latest
+    ports:
+      - "3478:3478"
+      - "3478:3478/udp"
+      - "10000-10100:10000-10100/udp"
+    command: >
+      -n --log-file=stdout
+      --external-ip=$$(detect-external-ip)
+      --listening-port=3478
+      --min-port=10000
+      --max-port=10100
+      --fingerprint
+      --lt-cred-mech
+      --user=user:pass
+      --realm=webrtc.local
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  monitoring:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+
+volumes:
+  redis-data:

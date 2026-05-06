@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  eventType   String   @map("event_type")
+  payload     Json
+  source      String
+  timestamp   DateTime @default(now())
+  processedAt DateTime? @map("processed_at")
+  windowKey   String   @map("window_key")
+
+  @@index([eventType, timestamp])
+  @@index([windowKey])
+  @@index([timestamp])
+  @@map("events")
+}
+
+model MetricRollup {
+  id           String   @id @default(cuid())
+  metricName   String   @map("metric_name")
+  windowKey    String   @map("window_key")
+  windowStart  DateTime @map("window_start")
+  windowEnd    DateTime @map("window_end")
+  count        Int      @default(0)
+  sum          Float    @default(0)
+  avg          Float    @default(0)
+  min          Float?
+  max          Float?
+  uniqueKeys   Int      @default(0) @map("unique_keys")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([metricName, windowKey])
+  @@index([metricName, windowStart])
+  @@index([windowKey])
+  @@map("metric_rollups")
+}

@@ -1,6 +1,6 @@
 # Backend Mastery Through Projects
 
-> **The only way to learn backend engineering is to build things, break them, and fix them.** 53 projects. From 30-minute micro-projects to 2-week expert systems. Each with full docs, intentional bugs, and the thinking process behind every decision.
+> **The only way to learn backend engineering is to build things, break them, and fix them.** 74 projects. From 30-minute micro-projects to 2-week expert systems. Each with full docs, intentional bugs, and the thinking process behind every decision.
 
 ---
 
@@ -33,7 +33,7 @@ Every project has:
 | **Medium** | 10 | 1-2 days | 2-4 weeks | Production-ready features |
 | **Advanced** | 6 | 3-5 days | 3-5 weeks | Multi-service systems |
 | **Expert** | 2 | 1-2 weeks | 2-4 weeks | Startup-grade systems |
-| **TOTAL** | **53** | | **3-6 months** | **Complete backend mastery** |
+| **TOTAL** | **74** | | **4-8 months** | **Complete backend mastery** |
 
 ---
 
@@ -62,7 +62,12 @@ Every project has:
 | M17 | **CSV Parser** | Streaming parse, RFC 4180, formula injection | Loads entire file into memory |
 | M18 | **Timezone API** | IANA database, DST, ISO 8601, Intl API | Returns local time instead of requested zone |
 | M19 | **Header Inspector** | X-Forwarded-For, proxy headers, security headers | Trusts XFF blindly (IP spoofing) |
-| M20 | **Webhook Receiver** | HMAC verification, replay attacks, idempotency | No signature verification (accepts forged) |
+| M20 | **Webhook Receiver** | Webhooks, HMAC, replay attacks, idempotency | No signature verification (accepts forged) |
+| M21 | **Circuit Breaker** | Failure detection, state machines, recovery | No failure threshold (never opens) |
+| M22 | **Feature Flag** | Rollout strategies, consistent hashing | Random assignment (user sees A then B) |
+| M23 | **Config Manager** | Hot reload, validation, type safety | No validation (accepts any JSON) |
+| M24 | **Metrics Collector** | Time-series data, percentiles, histograms | No time window (unbounded growth) |
+| M25 | **Retry Logic** | Exponential backoff, jitter, idempotency | No jitter (thundering herd) |
 
 ---
 
@@ -87,6 +92,11 @@ Every project has:
 | S13 | **API Key Manager** | Generate, revoke, rate limit keys | Hashing, rate limiting, auth | Stores keys in plaintext |
 | S14 | **Search API** | Full-text search with relevance | tsvector, stemming, highlighting | Uses ILIKE instead of full-text index |
 | S15 | **Webhook Sender** | Send webhooks with retries | HTTP client, retry logic, signatures | No retry on failure (fire-and-forget) |
+| S16 | **GraphQL API** | Blog with queries and mutations | Schema, resolvers, N+1, depth limiting | N+1 query (no DataLoader) |
+| S17 | **Event Sourcing** | Bank account with event log | Events, event store, snapshots | Direct state update (bypasses events) |
+| S18 | **A/B Testing** | User variant assignment | Randomization, significance, control | Non-deterministic assignment |
+| S19 | **Data Pipeline** | CSV ETL with validation | Batch processing, idempotency, errors | Not idempotent (creates duplicates) |
+| S20 | **API Versioning** | Multi-version API | URL/header versioning, deprecation | Breaking change without version bump |
 
 ---
 
@@ -106,6 +116,11 @@ Every project has:
 | MD08 | **Distributed Job Queue** | Background jobs | BullMQ, retries, DLQ, progress tracking | No idempotency (retry re-processes) |
 | MD09 | **Social Feed Engine** | Social | Fan-out, ranking, cursor pagination | Fan-out blocks post creation (30s) |
 | MD10 | **Multi-tenant Gateway** | Enterprise | Tenant isolation, RLS, API versioning | Missing RLS (cross-tenant leak) |
+| MD11 | **GraphQL Server** | API | Production GraphQL with complexity | No depth limit (recursive query DoS) |
+| MD12 | **Real-time Analytics** | Analytics | Event ingestion, aggregation, dashboard | Race condition in aggregation |
+| MD13 | **Event Sourcing + CQRS** | Architecture | E-commerce with ES + read models | Direct read from write model |
+| MD14 | **Monitoring Stack** | Observability | Metrics, alerts, dashboards | Cardinality explosion (OOM) |
+| MD15 | **Change Data Capture** | Data | Capture DB changes, publish events | Missed changes (wrong WAL position) |
 
 ---
 
@@ -121,6 +136,10 @@ Every project has:
 | A04 | **Payment Orchestrator** | Fintech | Multi-provider with fallback | No fallback (primary fails = all fail) |
 | A05 | **IoT Device Manager** | IoT | Device registry + telemetry | No device auth (fake telemetry accepted) |
 | A06 | **Content Moderation** | AI/Trust | Pipeline + human review queue | Race: content approved and flagged simultaneously |
+| A07 | **gRPC Microservices** | RPC | User + Order services via gRPC | No deadline (RPC hangs forever) |
+| A08 | **WebRTC Signaling** | Real-time | Signaling server for P2P calls | ICE candidate memory leak |
+| A09 | **ML Model Serving** | AI/ML | Serve models with A/B testing | No model versioning (can't rollback) |
+| A10 | **Geo-Distributed API** | Distributed | Multi-region with conflict resolution | No conflict resolution (data loss) |
 
 ---
 
@@ -132,6 +151,8 @@ Every project has:
 |---|---------|--------|-----------|---------|
 | E01 | **TeamTask Pro** | SaaS | Multi-tenant project management (Asana clone) | Cross-tenant data access |
 | E02 | **StreamForge** | Streaming | Live streaming platform backend (Twitch clone) | Unauthenticated stream start |
+| E03 | **DataSync** | Sync | CRDT sync engine (Firebase/Dropbox clone) | No tombstones (deleted data resurrects) |
+| E04 | **ApiHub** | Marketplace | API marketplace (RapidAPI/Stripe clone) | Cross-developer API key access |
 
 ---
 
@@ -191,13 +212,13 @@ Complete all 53 projects. By the end:
 
 | Metric | Value |
 |--------|-------|
-| Total Projects | 53 |
-| Total Lines of Code + Docs | 723,000+ |
-| Micro Projects | 20 |
-| Small Projects | 15 |
-| Medium Projects | 10 |
-| Advanced Projects | 6 |
-| Expert Projects | 2 |
+| Total Projects | 74 |
+| Total Lines of Code + Docs | 780,000+ |
+| Micro Projects | 25 |
+| Small Projects | 20 |
+| Medium Projects | 15 |
+| Advanced Projects | 10 |
+| Expert Projects | 4 |
 | Documentation Files | 477 (9 per project) |
 | Intentional Bugs | 80+ |
 | Domains Covered | 20+ |

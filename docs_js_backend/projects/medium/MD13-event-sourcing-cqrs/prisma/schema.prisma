@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model EventStore {
+  id          String   @id @default(cuid())
+  aggregateId String   @map("aggregate_id")
+  aggregateType String @map("aggregate_type")
+  eventType   String   @map("event_type")
+  eventData   Json     @map("event_data")
+  version     Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  metadata    Json?
+
+  @@unique([aggregateId, version])
+  @@index([aggregateId, version])
+  @@index([aggregateType, createdAt])
+  @@index([eventType])
+  @@map("event_store")
+}
+
+model OrderReadModel {
+  id          String    @id @default(cuid())
+  aggregateId String    @unique @map("aggregate_id")
+  customerId  String    @map("customer_id")
+  status      OrderStatus @default(PENDING)
+  totalAmount Float     @map("total_amount")
+  items       Json
+  shippingAddress Json  @map("shipping_address")
+  version     Int
+  projectedAt DateTime  @default(now()) @map("projected_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@index([customerId])
+  @@index([status])
+  @@index([projectedAt])
+  @@map("order_read_model")
+}
+
+model Snapshot {
+  id          String   @id @default(cuid())
+  aggregateId String   @map("aggregate_id")
+  aggregateType String @map("aggregate_type")
+  state       Json
+  version     Int
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([aggregateId, version])
+  @@index([aggregateId])
+  @@map("snapshots")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}

@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  us-east:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REGION=us-east
+      - REPLICAS=us-west,eu-west
+    depends_on:
+      - redis-us-east
+
+  us-west:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REGION=us-west
+      - REPLICAS=us-east,eu-west
+    depends_on:
+      - redis-us-west
+
+  eu-west:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REGION=eu-west
+      - REPLICAS=us-east,us-west
+    depends_on:
+      - redis-eu-west
+
+  redis-us-east:
+    image: redis:7-alpine
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis-us-east:/data
+
+  redis-us-west:
+    image: redis:7-alpine
+    ports:
+      - "6382:6379"
+    volumes:
+      - redis-us-west:/data
+
+  redis-eu-west:
+    image: redis:7-alpine
+    ports:
+      - "6383:6379"
+    volumes:
+      - redis-eu-west:/data
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+volumes:
+  redis-us-east:
+  redis-us-west:
+  redis-eu-west:

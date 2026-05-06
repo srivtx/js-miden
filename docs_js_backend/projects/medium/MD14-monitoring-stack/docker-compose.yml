@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: md14-monitoring
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      RETENTION_HOURS: 24
+      ALERT_EVAL_INTERVAL_MS: 5000
+    volumes:
+      - .:/app
+      - /app/node_modules

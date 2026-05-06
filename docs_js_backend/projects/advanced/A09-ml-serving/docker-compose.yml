@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MODEL_PATH=/models
+    volumes:
+      - ./models:/models
+    depends_on:
+      - redis
+      - prometheus
+
+  model-registry:
+    build:
+      context: .
+      dockerfile: Dockerfile.registry
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - REGISTRY_PATH=/registry
+    volumes:
+      - ./registry:/registry
+
+  batch-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://api:3000
+    depends_on:
+      - api
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+
+volumes:
+  redis-data:

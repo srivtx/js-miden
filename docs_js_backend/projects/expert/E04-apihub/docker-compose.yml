@@ -1,0 +1,138 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  gateway:
+    build:
+      context: .
+      dockerfile: services/gateway/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - AUTH_SERVICE_URL=http://auth:3001
+      - USAGE_SERVICE_URL=http://usage:3002
+      - BILLING_SERVICE_URL=http://billing:3003
+      - ANALYTICS_SERVICE_URL=http://analytics:3004
+      - PORTAL_SERVICE_URL=http://developer-portal:3005
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      usage:
+        condition: service_started
+    volumes:
+      - ./shared:/app/shared
+      - ./services/gateway/src:/app/services/gateway/src
+
+  auth:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=auth-jwt-secret-change-in-production
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./shared:/app/shared
+      - ./services/auth/src:/app/services/auth/src
+
+  usage:
+    build:
+      context: .
+      dockerfile: services/usage/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth:3001
+      - BILLING_SERVICE_URL=http://billing:3003
+    depends_on:
+      redis:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    volumes:
+      - ./shared:/app/shared
+      - ./services/usage/src:/app/services/usage/src
+
+  billing:
+    build:
+      context: .
+      dockerfile: services/billing/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - REDIS_URL=redis://redis:6379
+      - USAGE_SERVICE_URL=http://usage:3002
+      - PORTAL_SERVICE_URL=http://developer-portal:3005
+    depends_on:
+      redis:
+        condition: service_healthy
+      usage:
+        condition: service_started
+    volumes:
+      - ./shared:/app/shared
+      - ./services/billing/src:/app/services/billing/src
+
+  analytics:
+    build:
+      context: .
+      dockerfile: services/analytics/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - REDIS_URL=redis://redis:6379
+      - USAGE_SERVICE_URL=http://usage:3002
+    depends_on:
+      redis:
+        condition: service_healthy
+      usage:
+        condition: service_started
+    volumes:
+      - ./shared:/app/shared
+      - ./services/analytics/src:/app/services/analytics/src
+
+  developer-portal:
+    build:
+      context: .
+      dockerfile: services/developer-portal/Dockerfile
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://auth:3001
+      - BILLING_SERVICE_URL=http://billing:3003
+    depends_on:
+      redis:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    volumes:
+      - ./shared:/app/shared
+      - ./services/developer-portal/src:/app/services/developer-portal/src
+
+volumes:
+  redis-data:
