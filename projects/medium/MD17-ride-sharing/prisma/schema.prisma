@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      UserRole @default(RIDER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  riderProfile  Rider?
+  driverProfile Driver?
+  reviews       Review[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  RIDER
+  DRIVER
+  ADMIN
+}
+
+model Rider {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id])
+  rides   Ride[]
+
+  @@map("riders")
+}
+
+model Driver {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  isAvailable Boolean  @default(true) @map("is_available")
+  latitude    Float?
+  longitude   Float?
+  vehicleType String   @map("vehicle_type")
+  licensePlate String @map("license_plate")
+  rating      Float    @default(5.0)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user  User   @relation(fields: [userId], references: [id])
+  rides Ride[]
+
+  @@map("drivers")
+}
+
+model Ride {
+  id            String      @id @default(uuid())
+  riderId       String      @map("rider_id")
+  driverId      String?     @map("driver_id")
+  status        RideStatus  @default(REQUESTED)
+  pickupAddress String      @map("pickup_address")
+  pickupLat     Float       @map("pickup_lat")
+  pickupLng     Float       @map("pickup_lng")
+  dropoffAddress String     @map("dropoff_address")
+  dropoffLat    Float       @map("dropoff_lat")
+  dropoffLng    Float       @map("dropoff_lng")
+  baseFare      Decimal     @db.Decimal(10, 2) @map("base_fare")
+  distanceFare  Decimal     @db.Decimal(10, 2) @map("distance_fare")
+  timeFare      Decimal     @db.Decimal(10, 2) @map("time_fare")
+  surgeMultiplier Decimal   @db.Decimal(3, 2) @default(1.00) @map("surge_multiplier")
+  totalFare     Decimal     @db.Decimal(10, 2) @map("total_fare")
+  distanceKm    Float       @map("distance_km")
+  estimatedMinutes Int     @map("estimated_minutes")
+  actualMinutes Int?        @map("actual_minutes")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  rider  Rider   @relation(fields: [riderId], references: [id])
+  driver Driver? @relation(fields: [driverId], references: [id])
+  review Review?
+  tracking Tracking[]
+
+  @@map("rides")
+}
+
+enum RideStatus {
+  REQUESTED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rideId    String   @unique @map("ride_id")
+  reviewerId String  @map("reviewer_id")
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  ride    Ride   @relation(fields: [rideId], references: [id])
+  user    User   @relation(fields: [reviewerId], references: [id])
+
+  @@map("reviews")
+}
+
+model Tracking {
+  id        String   @id @default(uuid())
+  rideId    String   @map("ride_id")
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+
+  ride Ride @relation(fields: [rideId], references: [id], onDelete: Cascade)
+
+  @@map("tracking")
+}
+
+model SurgePricing {
+  id        String   @id @default(uuid())
+  zoneLat   Float    @map("zone_lat")
+  zoneLng   Float    @map("zone_lng")
+  zoneRadius Float   @map("zone_radius")
+  multiplier Decimal @db.Decimal(3, 2)
+  demand    Int      @default(0)
+  supply    Int      @default(0)
+  active    Boolean  @default(true)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("surge_pricing")
+}

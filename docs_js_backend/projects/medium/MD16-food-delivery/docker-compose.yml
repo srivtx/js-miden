@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: md16-food-delivery
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/food_delivery?schema=public
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - PORT=3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - db
+      - redis
+    command: sh -c "npx prisma migrate dev && npm run dev"
+
+  db:
+    image: postgres:16-alpine
+    container_name: md16-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=food_delivery
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: md16-redis
+    ports:
+      - "6379:6379"
+
+  test:
+    build: .
+    container_name: md16-test
+    environment:
+      - NODE_ENV=test
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/food_delivery_test?schema=public
+      - JWT_SECRET=test-secret
+    depends_on:
+      - db
+    command: npm test
+    profiles:
+      - test
+
+volumes:
+  postgres_data:

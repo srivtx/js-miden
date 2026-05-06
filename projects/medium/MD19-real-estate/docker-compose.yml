@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: md19-real-estate
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/real_estate?schema=public
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - PORT=3003
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - db
+    command: sh -c "npx prisma migrate dev && npm run dev"
+
+  db:
+    image: postgres:16-alpine
+    container_name: md19-db
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=real_estate
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  test:
+    build: .
+    container_name: md19-test
+    environment:
+      - NODE_ENV=test
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/real_estate_test?schema=public
+      - JWT_SECRET=test-secret
+    depends_on:
+      - db
+    command: npm test
+    profiles:
+      - test
+
+volumes:
+  postgres_data:

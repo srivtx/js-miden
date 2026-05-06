@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      UserRole @default(CUSTOMER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  orders     Order[]
+  restaurants Restaurant[]
+  driver     Driver?
+
+  @@map("users")
+}
+
+enum UserRole {
+  CUSTOMER
+  RESTAURANT_OWNER
+  DRIVER
+  ADMIN
+}
+
+model Restaurant {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  address     String
+  latitude    Float
+  longitude   Float
+  cuisine     String
+  rating      Float    @default(0)
+  isOpen      Boolean  @default(true) @map("is_open")
+  ownerId     String   @map("owner_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  owner  User    @relation(fields: [ownerId], references: [id])
+  menus  Menu[]
+  orders Order[]
+
+  @@map("restaurants")
+}
+
+model Menu {
+  id           String   @id @default(uuid())
+  restaurantId String   @map("restaurant_id")
+  name         String
+  description  String?
+  price        Decimal  @db.Decimal(10, 2)
+  category     String
+  isAvailable  Boolean  @default(true) @map("is_available")
+  inventory    Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  restaurant   Restaurant    @relation(fields: [restaurantId], references: [id])
+  orderItems   OrderItem[]
+
+  @@map("menus")
+}
+
+model Order {
+  id           String      @id @default(uuid())
+  customerId   String      @map("customer_id")
+  restaurantId String      @map("restaurant_id")
+  driverId     String?     @map("driver_id")
+  status       OrderStatus @default(PLACED)
+  total        Decimal     @db.Decimal(10, 2)
+  address      String
+  latitude     Float
+  longitude    Float
+  etaMinutes   Int?        @map("eta_minutes")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  customer   User        @relation(fields: [customerId], references: [id])
+  restaurant Restaurant  @relation(fields: [restaurantId], references: [id])
+  driver     Driver?     @relation(fields: [driverId], references: [id])
+  items      OrderItem[]
+  tracking   Tracking[]
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PLACED
+  PREPARING
+  READY
+  PICKED_UP
+  DELIVERED
+  CANCELLED
+}
+
+model OrderItem {
+  id       String @id @default(uuid())
+  orderId  String @map("order_id")
+  menuId   String @map("menu_id")
+  quantity Int
+  price    Decimal @db.Decimal(10, 2)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menu  Menu  @relation(fields: [menuId], references: [id])
+
+  @@map("order_items")
+}
+
+model Driver {
+  id          String        @id @default(uuid())
+  userId      String        @unique @map("user_id")
+  isAvailable Boolean       @default(true) @map("is_available")
+  latitude    Float?
+  longitude   Float?
+  currentOrderId String?    @unique @map("current_order_id")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  user    User     @relation(fields: [userId], references: [id])
+  orders  Order[]
+  currentOrder Order? @relation(name: "DriverCurrentOrder", fields: [currentOrderId], references: [id])
+
+  @@map("drivers")
+}
+
+model Tracking {
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  latitude  Float
+  longitude Float
+  timestamp DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("tracking")
+}

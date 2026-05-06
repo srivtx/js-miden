@@ -1,6 +1,6 @@
 # Backend Mastery Through Projects
 
-> **The only way to learn backend engineering is to build things, break them, and fix them.** 74 projects. From 30-minute micro-projects to 2-week expert systems. Each with full docs, intentional bugs, and the thinking process behind every decision.
+> **The only way to learn backend engineering is to build things, break them, and fix them.** 87 projects. From 30-minute micro-projects to 2-week expert systems. Each with full docs, intentional bugs, and the thinking process behind every decision.
 
 ---
 
@@ -33,7 +33,7 @@ Every project has:
 | **Medium** | 10 | 1-2 days | 2-4 weeks | Production-ready features |
 | **Advanced** | 6 | 3-5 days | 3-5 weeks | Multi-service systems |
 | **Expert** | 2 | 1-2 weeks | 2-4 weeks | Startup-grade systems |
-| **TOTAL** | **74** | | **4-8 months** | **Complete backend mastery** |
+| **TOTAL** | **87** | | **5-9 months** | **Complete backend mastery** |
 
 ---
 
@@ -68,6 +68,11 @@ Every project has:
 | M23 | **Config Manager** | Hot reload, validation, type safety | No validation (accepts any JSON) |
 | M24 | **Metrics Collector** | Time-series data, percentiles, histograms | No time window (unbounded growth) |
 | M25 | **Retry Logic** | Exponential backoff, jitter, idempotency | No jitter (thundering herd) |
+| M26 | **API Gateway** | Reverse proxy, routing, request ID | No timeout (hangs forever) |
+| M27 | **Load Balancer** | Round-robin, health checks | No health checks (sends to dead servers) |
+| M28 | **Service Discovery** | Register/discover services | No heartbeat cleanup (dead services stay) |
+| M29 | **Config Server** | Centralized config, environments | No env isolation (dev overwrites prod) |
+| M30 | **Bulkhead Pattern** | Resource pool isolation | Shared pool (critical requests fail) |
 
 ---
 
@@ -97,6 +102,11 @@ Every project has:
 | S18 | **A/B Testing** | User variant assignment | Randomization, significance, control | Non-deterministic assignment |
 | S19 | **Data Pipeline** | CSV ETL with validation | Batch processing, idempotency, errors | Not idempotent (creates duplicates) |
 | S20 | **API Versioning** | Multi-version API | URL/header versioning, deprecation | Breaking change without version bump |
+| S21 | **Email Service** | SMTP, templates, delivery tracking | Queuing, retry, status tracking | No queue (blocks response) |
+| S22 | **Push Notifications** | FCM/APNS mock, device tokens | Batch send, token validation | No batching (sends one by one) |
+| S23 | **Leaderboard** | Real-time scoring, rankings | Time-based periods, rank queries | Full table scan (no index) |
+| S24 | **Wishlist** | Save items, price tracking | Deduplication, user isolation | No user isolation (data leak) |
+| S25 | **Shopping Cart** | Session-based cart, merge | Redis persistence, expiry | Session fixation (predictable IDs) |
 
 ---
 
@@ -121,6 +131,11 @@ Every project has:
 | MD13 | **Event Sourcing + CQRS** | Architecture | E-commerce with ES + read models | Direct read from write model |
 | MD14 | **Monitoring Stack** | Observability | Metrics, alerts, dashboards | Cardinality explosion (OOM) |
 | MD15 | **Change Data Capture** | Data | Capture DB changes, publish events | Missed changes (wrong WAL position) |
+| MD16 | **Food Delivery** | Food | Restaurants, orders, driver tracking | Race: two drivers accept same order |
+| MD17 | **Ride Sharing** | Transport | Riders, drivers, fares, surge | Surge pricing not atomic |
+| MD18 | **LMS** | Education | Courses, progress, quizzes, certs | Progress not persisted |
+| MD19 | **Real Estate** | Property | Listings, search, tours, agents | LIKE search (no index, slow) |
+| MD20 | **Logistics** | Supply chain | Shipments, tracking, routes | Circular route (algorithm bug) |
 
 ---
 
@@ -140,6 +155,10 @@ Every project has:
 | A08 | **WebRTC Signaling** | Real-time | Signaling server for P2P calls | ICE candidate memory leak |
 | A09 | **ML Model Serving** | AI/ML | Serve models with A/B testing | No model versioning (can't rollback) |
 | A10 | **Geo-Distributed API** | Distributed | Multi-region with conflict resolution | No conflict resolution (data loss) |
+| A11 | **Trading Engine** | Finance | Order matching, order book, trades | Race: two orders match same party |
+| A12 | **Game Server** | Gaming | Matchmaking, state, anti-cheat | No state validation (client sends 999 health) |
+| A13 | **Healthcare FHIR** | Health | Patient data, HIPAA, audit | No audit logging (HIPAA violation) |
+| A14 | **Blockchain Backend** | Crypto | Wallets, transactions, nonces | Nonce reuse (transaction replay) |
 
 ---
 
@@ -153,6 +172,8 @@ Every project has:
 | E02 | **StreamForge** | Streaming | Live streaming platform backend (Twitch clone) | Unauthenticated stream start |
 | E03 | **DataSync** | Sync | CRDT sync engine (Firebase/Dropbox clone) | No tombstones (deleted data resurrects) |
 | E04 | **ApiHub** | Marketplace | API marketplace (RapidAPI/Stripe clone) | Cross-developer API key access |
+| E05 | **Social Media** | Social | Full platform (Instagram/Twitter clone) | DM not encrypted (plaintext) |
+| E06 | **Streaming Platform** | Video | Netflix clone with DRM, recommendations | No DRM validation (free streams premium) |
 
 ---
 
@@ -212,13 +233,13 @@ Complete all 53 projects. By the end:
 
 | Metric | Value |
 |--------|-------|
-| Total Projects | 74 |
-| Total Lines of Code + Docs | 780,000+ |
-| Micro Projects | 25 |
-| Small Projects | 20 |
-| Medium Projects | 15 |
-| Advanced Projects | 10 |
-| Expert Projects | 4 |
+| Total Projects | 87 |
+| Total Lines of Code + Docs | 850,000+ |
+| Micro Projects | 30 |
+| Small Projects | 25 |
+| Medium Projects | 20 |
+| Advanced Projects | 14 |
+| Expert Projects | 6 |
 | Documentation Files | 477 (9 per project) |
 | Intentional Bugs | 80+ |
 | Domains Covered | 20+ |

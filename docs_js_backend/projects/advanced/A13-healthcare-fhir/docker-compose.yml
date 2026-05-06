@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  fhir-api-service:
+    build: .
+    ports:
+      - "3031:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fhir
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=change-me-in-production
+      - ENCRYPTION_KEY=change-me-in-production-32-bytes!!
+    depends_on:
+      - postgres
+      - redis
+
+  audit-service:
+    build: .
+    ports:
+      - "3032:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fhir
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=change-me-in-production
+    depends_on:
+      - postgres
+      - redis
+
+  consent-service:
+    build: .
+    ports:
+      - "3033:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/fhir
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=change-me-in-production
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=fhir
+    ports:
+      - "5431:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6331:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
