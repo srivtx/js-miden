@@ -48,3 +48,8 @@ temp/
 
 
 ai-miden/ 
+
+# AI-generated curriculum files (not part of the actual project)
+AI_Curriculum_Narrative_Flow.md
+CURRICULUM_PLAN.md
+research_backend/
