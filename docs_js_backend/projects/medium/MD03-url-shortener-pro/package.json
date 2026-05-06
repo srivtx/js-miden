@@ -1,0 +1,42 @@
+{
+  "name": "md03-url-shortener-pro",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio",
+    "lint": "eslint src tests --ext .ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.10.0",
+    "express": "^5.0.0",
+    "redis": "^4.6.13",
+    "zod": "^3.22.4",
+    "dotenv": "^16.4.5",
+    "helmet": "^7.1.0",
+    "cors": "^2.8.5",
+    "rate-limiter-flexible": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0",
+    "vitest": "^1.2.0",
+    "@vitest/ui": "^1.2.0",
+    "supertest": "^6.3.4",
+    "@types/supertest": "^6.0.2",
+    "prisma": "^5.10.0",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0"
+  }
+}

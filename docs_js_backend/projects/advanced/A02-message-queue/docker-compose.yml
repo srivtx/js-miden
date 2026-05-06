@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=production
+      - DATA_DIR=/data
+      - PORT=3000
+    volumes:
+      - queue_data:/data
+
+  app2:
+    build: .
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=production
+      - DATA_DIR=/data
+      - PORT=3000
+    volumes:
+      - queue_data:/data
+
+volumes:
+  queue_data:

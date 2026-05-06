@@ -1,0 +1,33 @@
+{
+  "name": "md07-ai-content-studio",
+  "version": "1.0.0",
+  "description": "AI writing assistant with streaming and semantic search",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down"
+  },
+  "dependencies": {
+    "express": "^5.0.0",
+    "pg": "^8.11.0",
+    "zod": "^3.22.0",
+    "dotenv": "^16.3.0",
+    "openai": "^4.20.0",
+    "ioredis": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/pg": "^8.10.0",
+    "@types/supertest": "^6.0.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}

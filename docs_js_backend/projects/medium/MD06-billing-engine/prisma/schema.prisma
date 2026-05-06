@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  stripeCustomerId String? @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscriptions Subscription[]
+  invoices      Invoice[]
+  paymentMethods PaymentMethod[]
+}
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  userId               String
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String
+  status               SubscriptionStatus @default(INCOMPLETE)
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+  canceledAt           DateTime?
+  plan                 String
+  quantity             Int                @default(1)
+  // Idempotency key to prevent double processing
+  idempotencyKey       String?            @unique
+  metadata             Json?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id])
+  invoices Invoice[]
+  events   SubscriptionEvent[]
+}
+
+enum SubscriptionStatus {
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+  PAUSED
+}
+
+model Invoice {
+  id              String        @id @default(uuid())
+  userId          String
+  subscriptionId  String?
+  stripeInvoiceId String?       @unique
+  amount          Int           // Amount in cents
+  currency        String        @default("usd")
+  status          InvoiceStatus @default(DRAFT)
+  description     String?
+  paidAt          DateTime?
+  failedAt        DateTime?
+  failureMessage  String?
+  idempotencyKey  String?       @unique
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  OPEN
+  PAID
+  UNCOLLECTIBLE
+  VOID
+}
+
+model PaymentMethod {
+  id                String   @id @default(uuid())
+  userId            String
+  stripePaymentMethodId String @unique
+  type              String
+  last4             String?
+  brand             String?
+  expMonth          Int?
+  expYear           Int?
+  isDefault         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model SubscriptionEvent {
+  id             String   @id @default(uuid())
+  subscriptionId String
+  type           String   // e.g., 'invoice.payment_succeeded', 'customer.subscription.updated'
+  data           Json     // Raw Stripe event data (sanitized)
+  processedAt    DateTime @default(now())
+  // Idempotency for webhook processing
+  stripeEventId  String   @unique
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+}
+
+model WebhookLog {
+  id            String    @id @default(uuid())
+  eventType     String
+  stripeEventId String    @unique
+  payload       Json
+  signature     String
+  verified      Boolean   @default(false)
+  processed     Boolean   @default(false)
+  error         String?
+  createdAt     DateTime  @default(now())
+  processedAt   DateTime?
+}

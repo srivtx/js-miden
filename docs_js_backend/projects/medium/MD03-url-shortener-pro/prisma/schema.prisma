@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Url {
+  id          String   @id @default(uuid())
+  originalUrl String   @map("original_url")
+  shortCode   String   @unique @map("short_code")
+  customAlias String?  @unique @map("custom_alias")
+  userId      String?  @map("user_id")
+  clicks      Int      @default(0)
+  isActive    Boolean  @default(true) @map("is_active")
+  expiresAt   DateTime? @map("expires_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  clickEvents ClickEvent[]
+
+  @@index([shortCode])
+  @@index([customAlias])
+  @@index([userId])
+  @@map("urls")
+}
+
+model ClickEvent {
+  id          String   @id @default(uuid())
+  urlId       String   @map("url_id")
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  referrer    String?
+  country     String?
+  city        String?
+  deviceType  String?  @map("device_type")
+  browser     String?
+  os          String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  url         Url      @relation(fields: [urlId], references: [id], onDelete: Cascade)
+
+  @@index([urlId, createdAt])
+  @@index([createdAt])
+  @@map("click_events")
+}
+
+model Counter {
+  id    String @id @default("global")
+  value BigInt @default(0)
+
+  @@map("counters")
+}

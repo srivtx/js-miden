@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  color     String   @default("#3B82F6") // Cursor color
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rooms        RoomMember[]
+  strokes      Stroke[]
+  sessions     Session[]
+  cursorEvents CursorEvent[]
+}
+
+model Room {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  maxUsers    Int       @default(50)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  members  RoomMember[]
+  strokes  Stroke[]
+  sessions Session[]
+}
+
+model RoomMember {
+  id     String @id @default(uuid())
+  roomId String
+  userId String
+  role   RoomRole @default(EDITOR)
+  joinedAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+}
+
+enum RoomRole {
+  VIEWER
+  EDITOR
+  ADMIN
+}
+
+model Stroke {
+  id        String   @id @default(uuid())
+  roomId    String
+  userId    String
+  type      StrokeType
+  points    Json     // Array of {x, y, timestamp}
+  color     String
+  width     Float
+  createdAt DateTime @default(now())
+  // Last-write-wins timestamp for conflict resolution
+  sequence  BigInt   @default(0)
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, sequence])
+}
+
+enum StrokeType {
+  PEN
+  ERASER
+  RECTANGLE
+  CIRCLE
+  LINE
+  TEXT
+}
+
+model CursorEvent {
+  id        String   @id @default(uuid())
+  roomId    String
+  userId    String
+  x         Float
+  y         Float
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, timestamp])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  roomId    String
+  userId    String
+  startedAt DateTime @default(now())
+  endedAt   DateTime?
+  events    Json[]   // Array of serialized drawing events for replay
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

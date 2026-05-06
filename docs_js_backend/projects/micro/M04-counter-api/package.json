@@ -1,0 +1,26 @@
+{
+  "name": "m04-counter-api",
+  "version": "1.0.0",
+  "description": "Counter API with Redis - includes intentional race condition bug for learning",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/src/index.js",
+    "test": "tsx --test tests/counter.test.ts",
+    "load-test": "node load-test.js"
+  },
+  "dependencies": {
+    "express": "^5.0.0",
+    "ioredis": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

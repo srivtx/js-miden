@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Chat Rooms</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; }
+    #log { border: 1px solid #ccc; height: 300px; overflow-y: auto; padding: 1rem; }
+    input, button { padding: 0.5rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>S06 Chat Rooms</h1>
+  <div>
+    <input id="room" placeholder="Room name" value="general" />
+    <button onclick="join()">Join</button>
+    <button onclick="leave()">Leave</button>
+  </div>
+  <div>
+    <input id="msg" placeholder="Message" />
+    <button onclick="send()">Send</button>
+  </div>
+  <div id="log"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const log = (text) => {
+      const el = document.getElementById('log');
+      el.innerHTML += `<div>${text}</div>`;
+      el.scrollTop = el.scrollHeight;
+    };
+
+    socket.on('message', (data) => log(`[${data.room}] ${data.sender}: ${data.text}`));
+    socket.on('notification', (data) => log(`* ${data.text}`));
+    socket.on('joined', (room) => log(`Joined ${room}`));
+
+    function join() { socket.emit('join', document.getElementById('room').value); }
+    function leave() { socket.emit('leave', document.getElementById('room').value); }
+    function send() {
+      const room = document.getElementById('room').value;
+      const text = document.getElementById('msg').value;
+      socket.emit('message', { room, text });
+    }
+  </script>
+</body>
+</html>

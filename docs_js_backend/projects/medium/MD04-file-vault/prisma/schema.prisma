@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ownedFiles     File[]
+  fileAccess     FileAccess[]
+  auditLogs      AuditLog[]
+}
+
+model File {
+  id           String    @id @default(uuid())
+  originalName String
+  storagePath  String    @unique
+  mimeType     String
+  size         BigInt
+  iv           String    // Initialization vector for AES encryption
+  encryptedKey String    // Encrypted file encryption key
+  ownerId      String
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  owner      User         @relation(fields: [ownerId], references: [id])
+  accessList FileAccess[]
+  auditLogs  AuditLog[]
+}
+
+model FileAccess {
+  id     String @id @default(uuid())
+  fileId String
+  userId String
+  role   AccessRole @default(READER)
+
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([fileId, userId])
+}
+
+enum AccessRole {
+  READER
+  WRITER
+  ADMIN
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  fileId    String
+  userId    String
+  action    AuditAction
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  file File @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum AuditAction {
+  UPLOAD
+  DOWNLOAD
+  VIEW
+  SHARE
+  DELETE
+  ACCESS_DENIED
+}

@@ -1,0 +1,29 @@
+{
+  "name": "s02-contact-form",
+  "version": "1.0.0",
+  "description": "Contact form backend with validation, rate limiting, and GDPR awareness",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^5.0.0",
+    "helmet": "^7.1.0",
+    "ioredis": "^5.3.2",
+    "validator": "^13.11.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^20.0.0",
+    "@types/supertest": "^6.0.0",
+    "@types/validator": "^13.11.0",
+    "supertest": "^6.3.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  }
+}

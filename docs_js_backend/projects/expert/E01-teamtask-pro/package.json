@@ -1,0 +1,44 @@
+{
+  "name": "teamtask-pro",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev:gateway": "tsx src/gateway/index.ts",
+    "dev:auth": "tsx src/auth/index.ts",
+    "dev:task": "tsx src/task/index.ts",
+    "dev:notification": "tsx src/notification/index.ts",
+    "dev:file": "tsx src/file/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "express": "^5.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "mongoose": "^8.0.0",
+    "multer": "^1.4.5-lts.1",
+    "stripe": "^14.0.0",
+    "dotenv": "^16.3.0",
+    "http-proxy-middleware": "^2.0.6",
+    "uuid": "^9.0.0",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.0",
+    "joi": "^17.11.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/multer": "^1.4.11",
+    "@types/uuid": "^9.0.0",
+    "@types/cors": "^2.8.17",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "tsx": "^4.7.0",
+    "vitest": "^1.0.0",
+    "supertest": "^6.3.0",
+    "@types/supertest": "^6.0.0"
+  }
+}

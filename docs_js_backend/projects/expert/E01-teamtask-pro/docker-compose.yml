@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - AUTH_SERVICE_URL=http://auth:3001
+      - TASK_SERVICE_URL=http://task:3002
+      - NOTIFICATION_SERVICE_URL=http://notification:3003
+      - FILE_SERVICE_URL=http://file:3004
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - auth
+      - task
+      - notification
+      - file
+      - mongodb
+      - redis
+    command: npm run dev:gateway
+
+  auth:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb:27017/teamtask_auth
+      - JWT_SECRET=${JWT_SECRET}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+    depends_on:
+      - mongodb
+    command: npm run dev:auth
+
+  task:
+    build: .
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - MONGODB_URI=mongodb://mongodb:27017/teamtask_task
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    command: npm run dev:task
+
+  notification:
+    build: .
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - redis
+    command: npm run dev:notification
+
+  file:
+    build: .
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004
+      - MONGODB_URI=mongodb://mongodb:27017/teamtask_file
+      - JWT_SECRET=${JWT_SECRET}
+      - STORAGE_PATH=/app/uploads
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - file-storage:/app/uploads
+    depends_on:
+      - mongodb
+      - redis
+    command: npm run dev:file
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  stripe-cli:
+    image: stripe/stripe-cli:latest
+    command: listen --forward-to http://gateway:3000/webhooks/stripe
+    environment:
+      - STRIPE_API_KEY=${STRIPE_SECRET_KEY}
+    depends_on:
+      - gateway
+
+volumes:
+  mongodb-data:
+  redis-data:
+  file-storage:

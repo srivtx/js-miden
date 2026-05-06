@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  ingest:
+    build: .
+    ports:
+      - "4000:4000"
+      - "1935:1935"
+    environment:
+      - PORT=4000
+      - RTMP_PORT=1935
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - TRANSCODE_SERVICE_URL=http://transcode:4001
+    depends_on:
+      - mongodb
+      - redis
+    command: npm run dev:ingest
+
+  transcode:
+    build: .
+    ports:
+      - "4001:4001"
+    environment:
+      - PORT=4001
+      - REDIS_URL=redis://redis:6379
+      - STORAGE_PATH=/app/streams
+    volumes:
+      - stream-storage:/app/streams
+    depends_on:
+      - redis
+    command: npm run dev:transcode
+
+  chat:
+    build: .
+    ports:
+      - "4002:4002"
+    environment:
+      - PORT=4002
+      - MONGODB_URI=mongodb://mongodb:27017/streamforge_chat
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongodb
+      - redis
+    command: npm run dev:chat
+
+  analytics:
+    build: .
+    ports:
+      - "4003:4003"
+    environment:
+      - PORT=4003
+      - MONGODB_URI=mongodb://mongodb:27017/streamforge_analytics
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongodb
+      - redis
+    command: npm run dev:analytics
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27018:27017"
+    volumes:
+      - stream-mongodb:/data/db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    volumes:
+      - stream-redis:/data
+
+volumes:
+  stream-mongodb:
+  stream-redis:
+  stream-storage:
