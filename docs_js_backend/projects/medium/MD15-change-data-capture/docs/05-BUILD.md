@@ -82,3 +82,19 @@ export async function handleCacheUpdate(event: ChangeEvent): Promise<void> {
 - **Mistake**: Sending an email notification without deduplication.
 - **Why it breaks**: Consumer replays = duplicate emails.
 - **How to avoid**: Store `lastProcessedLsn` per consumer and deduplicate by LSN.
+
+## Step 5: Validate Offsets
+
+```typescript
+const maxLsn = await getLatestLsn();
+if (offset > maxLsn) {
+  console.warn(`Offset ${offset} is ahead of max LSN ${maxLsn}. Resetting.`);
+  await setConsumerOffset(consumerId, maxLsn);
+  offset = maxLsn;
+}
+```
+
+### Common Mistakes
+- **Mistake**: Trusting consumer offsets without validation.
+- **Why it breaks**: Corrupted offsets skip events permanently.
+- **How to avoid**: Always validate offset against `MAX(lsn)`.

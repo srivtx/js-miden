@@ -31,6 +31,8 @@ recordMetric('http_requests_total', 'counter', 1, {
 2. Add label validation to prevent cardinality explosion.
 3. Use pull-based scraping (Prometheus) or push with batching (OTLP).
 
+---
+
 ## Pattern: Alerting
 
 ### The Old Way
@@ -52,6 +54,8 @@ const rule: AlertRule = {
 ```
 **Why it's better:** Duration requirement prevents flapping. Labels allow routing to the right team.
 
+---
+
 ## Pattern: Storage
 
 ### The Old Way
@@ -61,3 +65,21 @@ Round-robin databases (RRDtool) with fixed-size files.
 ### The New Way
 Columnar time-series DBs (ClickHouse, TimescaleDB, VictoriaMetrics).
 **Why it's better:** Compression ratios of 10:1 or better. SQL-like querying. Dynamic retention.
+
+---
+
+## Pattern: Dashboards
+
+### The Old Way
+```bash
+# Grafana with raw SQL
+curl 'https://grafana/api/ds/query' -d '{ "rawSql": "SELECT * FROM metrics" }'
+```
+**Why it's wrong:** Raw SQL exposes schema, no aggregation, slow for high cardinality.
+
+### The New Way
+```typescript
+// API-first dashboards with pre-aggregated series
+GET /dashboard/series?name=http_requests_total&labels[method]=GET
+```
+**Why it's better:** Bounded responses, built-in aggregation, no SQL injection risk.

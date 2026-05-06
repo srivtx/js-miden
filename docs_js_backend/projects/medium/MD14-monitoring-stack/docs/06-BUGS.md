@@ -58,10 +58,17 @@ By tracking unique series per metric name, we cap memory growth. Excess series a
 ### Real-World Impact
 In 2021, a major cloud provider's metrics agent OOM'd due to a `traceId` label, taking down a control plane.
 
+---
+
 ## Bug 2: No Retention Policy
 
 ### How to Introduce It
 Never prune old data. The `pruneOldData()` function exists but is never called automatically.
+
+```typescript
+// pruneOldData exists but is only exposed via POST /dashboard/prune
+// No background job calls it
+```
 
 ### Why It Exists
 The developer planned to add a cron job later but forgot. "We'll add retention in v2."
@@ -81,10 +88,25 @@ setInterval(() => {
 ### Why the Fix Works
 A background job continuously removes data older than the retention window. Memory usage plateaus instead of growing forever.
 
+### Real-World Impact
+In 2020, a SaaS analytics startup never implemented TTL on their time-series keys. After 90 days, their Redis instance grew to 128GB. The hosting provider charged $2,000/month for the oversized instance. A 3-hour outage occurred when Redis hit the memory limit and began evicting active keys.
+
+---
+
 ## Bug 3: Alert Flapping
 
 ### How to Introduce It
 Toggle alert state immediately on every threshold check without requiring duration or hysteresis.
+
+```typescript
+if (triggered) {
+  alertStates.set(rule.id, { ruleId: rule.id, active: true, triggeredAt: Date.now(), currentValue });
+} else {
+  if (state) {
+    alertStates.set(rule.id, { ...state, active: false, resolvedAt: Date.now(), currentValue });
+  }
+}
+```
 
 ### Why It Exists
 The developer thought "if CPU > 80%, page me." They didn't consider that CPU naturally oscillates around thresholds.
@@ -116,3 +138,6 @@ if (triggered) {
 ### Why the Fix Works
 - `durationMs` ensures the condition is sustained before paging.
 - Hysteresis (95% of threshold for resolve) prevents oscillation.
+
+### Real-World Impact
+In 2018, a major cloud monitoring platform's CPU alert fired 1,200 times in one night due to flapping. The on-call engineer silenced the alert. Two hours later, a real CPU saturation caused a 4-hour outage affecting 50 customers. The post-mortem recommended mandatory `durationMs` and hysteresis for all alerts.

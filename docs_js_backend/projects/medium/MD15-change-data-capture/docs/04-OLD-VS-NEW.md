@@ -22,6 +22,8 @@ SELECT * FROM pg_logical_slot_peek_changes('cdc_slot', NULL, NULL);
 2. Stream changes with `pg_recvlogical` or a library like `pg-logical-replication`.
 3. Deprecate polling jobs.
 
+---
+
 ## Pattern: Event Ordering
 
 ### The Old Way
@@ -32,6 +34,8 @@ Process events as they arrive, trusting the network.
 Strict LSN ordering with backpressure.
 **Why it's better:** Cache consistency. No phantom reads.
 
+---
+
 ## Pattern: Consumer Offsets
 
 ### The Old Way
@@ -41,3 +45,34 @@ File-based offsets (`/var/lib/consumer.offset`).
 ### The New Way
 Database-backed offsets with `UPSERT`.
 **Why it's better:** Transactional, replicated, queryable.
+
+---
+
+## Pattern: Cache Invalidation
+
+### The Old Way
+```typescript
+// Application-level cache invalidation
+await db.updateUser(id, { name: 'New Name' });
+await cache.del(`user:${id}`); // What if this fails?
+```
+**Why it's wrong:** Cache invalidation and DB update are not atomic. Network failure = stale cache.
+
+### The New Way
+```typescript
+// CDC-driven cache invalidation
+// Database change → CDC event → cache consumer → cache.set/del
+```
+**Why it's better:** Cache is always derived from the database. No manual invalidation.
+
+---
+
+## Pattern: Event Delivery Guarantees
+
+### The Old Way
+"Fire and forget" — publish event, hope it arrives.
+**Why it's wrong:** Lost events during network partitions. No recovery mechanism.
+
+### The New Way
+At-least-once with idempotent consumers and persistent offsets.
+**Why it's better:** Survives crashes, network issues, and consumer restarts.

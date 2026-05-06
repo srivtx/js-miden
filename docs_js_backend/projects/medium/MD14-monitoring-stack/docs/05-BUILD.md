@@ -20,7 +20,7 @@ export interface TimeSeries {
 }
 ```
 
-### Common Mistakes at This Step
+### Common Mistakes
 - **Mistake**: Using `any` for labels.
 - **Why it breaks**: No validation means arbitrary keys/values, leading to injection attacks or cardinality explosion.
 - **How to avoid**: Strict `Record<string, string>` with max key/value lengths.
@@ -38,6 +38,16 @@ function seriesKey(name: string, labels: Labels): string {
     .map(([k, v]) => `${k}=${v}`)
     .join(',');
   return `${name}{${labelStr}}`;
+}
+
+export function recordMetric(name: string, type: MetricType, value: number, labels: Labels = {}): void {
+  const key = seriesKey(name, labels);
+  let ts = timeSeriesMap.get(key);
+  if (!ts) {
+    ts = { name, type, labels, values: [] };
+    timeSeriesMap.set(key, ts);
+  }
+  ts.values.push({ timestamp: Date.now(), value });
 }
 ```
 
@@ -80,6 +90,12 @@ router.get('/series', (_req, res) => {
       valueCount: s.values.length,
     })),
   });
+});
+
+router.post('/prune', (req, res) => {
+  const hours = Number(req.query.hours) || 24;
+  pruneOldData(hours);
+  res.json({ success: true });
 });
 ```
 
