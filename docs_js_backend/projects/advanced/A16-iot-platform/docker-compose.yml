@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MQTT_BROKER_URL=mqtt://mosquitto:1883
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=iot-token
+      - INFLUXDB_ORG=iot-org
+      - INFLUXDB_BUCKET=telemetry
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mosquitto
+      - influxdb
+      - redis
+    networks:
+      - iot-net
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-logs:/mosquitto/log
+    networks:
+      - iot-net
+
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpassword
+      - DOCKER_INFLUXDB_INIT_ORG=iot-org
+      - DOCKER_INFLUXDB_INIT_BUCKET=telemetry
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=iot-token
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    networks:
+      - iot-net
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - iot-net
+
+  # OTA update server
+  ota-server:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ota-firmware:/usr/share/nginx/html/firmware:ro
+    networks:
+      - iot-net
+
+volumes:
+  mosquitto-data:
+  mosquitto-logs:
+  influxdb-data:
+  ota-firmware:
+
+networks:
+  iot-net:
+    driver: bridge

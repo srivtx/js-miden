@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: tenantauth
+      POSTGRES_PASSWORD: tenantauth
+      POSTGRES_DB: tenantauth
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://tenantauth:tenantauth@postgres:5432/tenantauth
+      - JWT_SECRET=change-me-in-production
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

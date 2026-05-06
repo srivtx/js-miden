@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - CDN_BASE_URL=http://cdn:8080
+      - STORAGE_PATH=/data/videos
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - video-storage:/data/videos
+    depends_on:
+      - redis
+      - cdn
+    networks:
+      - video-net
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - video-net
+
+  cdn:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - video-storage:/usr/share/nginx/html/videos:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - video-net
+
+  # FFmpeg transcoding worker stub
+  transcoder:
+    build:
+      context: ./transcoder
+      dockerfile: Dockerfile
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - STORAGE_PATH=/data/videos
+    volumes:
+      - video-storage:/data/videos
+    depends_on:
+      - redis
+    networks:
+      - video-net
+
+volumes:
+  video-storage:
+
+networks:
+  video-net:
+    driver: bridge

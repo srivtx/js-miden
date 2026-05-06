@@ -1,6 +1,6 @@
 # Backend Mastery Through Projects
 
-> **The only way to learn backend engineering is to build things, break them, and fix them.** 87 projects. From 30-minute micro-projects to 2-week expert systems. Each with full docs, intentional bugs, and the thinking process behind every decision.
+> **The only way to learn backend engineering is to build things, break them, and fix them.** 108 projects. From 30-minute micro-projects to 2-week expert systems. Each with full docs, intentional bugs, and the thinking process behind every decision.
 
 ---
 
@@ -28,12 +28,12 @@ Every project has:
 
 | Tier | Count | Time Each | Total Time | Purpose |
 |------|-------|-----------|------------|---------|
-| **Micro** | 20 | 30-60 min | 15-20 hours | Muscle memory on single concepts |
-| **Small** | 15 | 2-4 hours | 30-60 hours | Combining 2-3 concepts |
-| **Medium** | 10 | 1-2 days | 2-4 weeks | Production-ready features |
-| **Advanced** | 6 | 3-5 days | 3-5 weeks | Multi-service systems |
-| **Expert** | 2 | 1-2 weeks | 2-4 weeks | Startup-grade systems |
-| **TOTAL** | **87** | | **5-9 months** | **Complete backend mastery** |
+| **Micro** | 35 | 30-60 min | 20-30 hours | Muscle memory on single concepts |
+| **Small** | 30 | 2-4 hours | 50-100 hours | Combining 2-3 concepts |
+| **Medium** | 20 | 1-2 days | 3-5 weeks | Production-ready features |
+| **Advanced** | 14 | 3-5 days | 5-8 weeks | Multi-service systems |
+| **Expert** | 7 | 1-2 weeks | 3-6 weeks | Startup-grade systems |
+| **TOTAL** | **108** | | **6-12 months** | **Complete backend mastery** |
 
 ---
 
@@ -73,6 +73,11 @@ Every project has:
 | M28 | **Service Discovery** | Register/discover services | No heartbeat cleanup (dead services stay) |
 | M29 | **Config Server** | Centralized config, environments | No env isolation (dev overwrites prod) |
 | M30 | **Bulkhead Pattern** | Resource pool isolation | Shared pool (critical requests fail) |
+| M31 | **Request ID** | Per-request tracing, log correlation | Lost in error responses (catch blocks) |
+| M32 | **Content Negotiation** | Accept header parsing, format selection | Wildcard `*/*` fails to match |
+| M33 | **UUID Service** | v4, v7, ULID generation | v7 uses wrong timestamp precision |
+| M34 | **Validate Headers** | Header format validation | Case-sensitive comparison (HTTP is case-insensitive) |
+| M35 | **Timezone API** | Timezone conversion, DST handling | Ignores DST transitions (fixed offsets) |
 
 ---
 
@@ -107,6 +112,11 @@ Every project has:
 | S23 | **Leaderboard** | Real-time scoring, rankings | Time-based periods, rank queries | Full table scan (no index) |
 | S24 | **Wishlist** | Save items, price tracking | Deduplication, user isolation | No user isolation (data leak) |
 | S25 | **Shopping Cart** | Session-based cart, merge | Redis persistence, expiry | Session fixation (predictable IDs) |
+| S26 | **File Upload Service** | Secure uploads, virus scan, image processing | Multer, magic numbers, Sharp | Path traversal in filename |
+| S27 | **URL Shortener** | Short links, analytics, custom codes | Hashing, collision, rate limiting | Sequential codes (predictable) |
+| S28 | **Job Queue** | Background jobs with BullMQ/Redis | Retries, DLQ, progress tracking | Jobs hang forever on timeout |
+| S29 | **Notification Dispatcher** | Multi-channel notifications | SMTP, SMS, push, WebSocket | Ignores user opt-out preferences |
+| S30 | **Multi-Tenant Auth** | SaaS authentication per tenant | JWT tenant claim, RBAC | Tenant claim not validated (cross-tenant) |
 
 ---
 
@@ -136,6 +146,11 @@ Every project has:
 | MD18 | **LMS** | Education | Courses, progress, quizzes, certs | Progress not persisted |
 | MD19 | **Real Estate** | Property | Listings, search, tours, agents | LIKE search (no index, slow) |
 | MD20 | **Logistics** | Supply chain | Shipments, tracking, routes | Circular route (algorithm bug) |
+| MD21 | **Hotel Booking** | Travel | Room inventory, holds, cancellation | Race: two users book last room |
+| MD22 | **Airline Reservation** | Aviation | Flight search, seat maps, check-in | Overbooking (sells > capacity) |
+| MD23 | **Insurance Claims** | Insurance | Claim workflow, fraud detection | Duplicate claims (minor field changes) |
+| MD24 | **HR Management** | Enterprise | Employees, leave, reviews, payroll | Manager sees all salaries (no RBAC) |
+| MD25 | **Warehouse Management** | Logistics | SKU tracking, pick/pack/ship | Negative inventory (sells nonexistent stock) |
 
 ---
 
@@ -159,6 +174,9 @@ Every project has:
 | A12 | **Game Server** | Gaming | Matchmaking, state, anti-cheat | No state validation (client sends 999 health) |
 | A13 | **Healthcare FHIR** | Health | Patient data, HIPAA, audit | No audit logging (HIPAA violation) |
 | A14 | **Blockchain Backend** | Crypto | Wallets, transactions, nonces | Nonce reuse (transaction replay) |
+| A15 | **Video Streaming** | Media | HLS/DASH, transcoding, CDN | No range validation (memory exhaustion) |
+| A16 | **IoT Platform** | IoT | Device registry, MQTT, telemetry | No device auth (fake telemetry accepted) |
+| A17 | **Financial Ledger** | Fintech | Double-entry, multi-currency, audit | Float arithmetic (0.1 + 0.2 != 0.3) |
 
 ---
 
@@ -172,8 +190,9 @@ Every project has:
 | E02 | **StreamForge** | Streaming | Live streaming platform backend (Twitch clone) | Unauthenticated stream start |
 | E03 | **DataSync** | Sync | CRDT sync engine (Firebase/Dropbox clone) | No tombstones (deleted data resurrects) |
 | E04 | **ApiHub** | Marketplace | API marketplace (RapidAPI/Stripe clone) | Cross-developer API key access |
-| E05 | **Social Media** | Social | Full platform (Instagram/Twitter clone) | DM not encrypted (plaintext) |
-| E06 | **Streaming Platform** | Video | Netflix clone with DRM, recommendations | No DRM validation (free streams premium) |
+| E05 | **Code Execution Engine** | EdTech | Sandboxed code runner (LeetCode clone) | No output limits (DoS via infinite print) |
+| E06 | **Distributed Search** | Search | Search engine backend (ES-like) | No ACL filtering (unauthorized doc leak) |
+| E07 | **Autoscaling Platform** | Infrastructure | Auto-scaling controller (K8s HPA-like) | Flapping (no hysteresis, oscillates up/down) |
 
 ---
 
@@ -221,7 +240,7 @@ Complete these for a hireable portfolio:
 - 1 Advanced project (A01 or A04) - show systems thinking
 
 ### For Mastery
-Complete all 53 projects. By the end:
+Complete all 108 projects. By the end:
 - You can debug any backend issue
 - You can design systems from scratch
 - You can explain WHY every decision was made
@@ -233,16 +252,16 @@ Complete all 53 projects. By the end:
 
 | Metric | Value |
 |--------|-------|
-| Total Projects | 87 |
-| Total Lines of Code + Docs | 850,000+ |
-| Micro Projects | 30 |
-| Small Projects | 25 |
+| Total Projects | 108 |
+| Total Lines of Code + Docs | 1,200,000+ |
+| Micro Projects | 35 |
+| Small Projects | 30 |
 | Medium Projects | 20 |
 | Advanced Projects | 14 |
-| Expert Projects | 6 |
-| Documentation Files | 477 (9 per project) |
-| Intentional Bugs | 80+ |
-| Domains Covered | 20+ |
+| Expert Projects | 7 |
+| Documentation Files | 972 (9 per project) |
+| Intentional Bugs | 120+ |
+| Domains Covered | 25+ |
 
 ---
 
@@ -262,4 +281,4 @@ Complete all 53 projects. By the end:
 >
 > *"The best time to plant a tree was 20 years ago. The second best time is now."* — Chinese Proverb
 >
-> **Start with M01. Fix the bug. Move to M02. Repeat 53 times. Become unstoppable.**
+> **Start with M01. Fix the bug. Move to M02. Repeat 108 times. Become unstoppable.**

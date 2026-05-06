@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id          String   @id @default(cuid())
+  employeeId  String   @unique
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  role        Role     @default(EMPLOYEE)
+  department  String
+  position    String
+  salary      Decimal  @db.Decimal(10, 2)
+  hireDate    DateTime
+  managerId   String?
+  isActive    Boolean  @default(true)
+
+  manager   Employee?  @relation("Manages", fields: [managerId], references: [id])
+  directReports Employee[] @relation("Manages")
+  leaveRequests LeaveRequest[]
+  reviewsAsSubject PerformanceReview[] @relation("ReviewSubject")
+  reviewsAsReviewer PerformanceReview[] @relation("ReviewReviewer")
+  payrollRuns PayrollRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LeaveRequest {
+  id          String      @id @default(cuid())
+  employeeId  String
+  startDate   DateTime
+  endDate     DateTime
+  type        LeaveType
+  status      LeaveStatus @default(PENDING)
+  reason      String?
+  approvedBy  String?
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+}
+
+model PerformanceReview {
+  id          String   @id @default(cuid())
+  employeeId  String
+  reviewerId  String
+  periodStart DateTime
+  periodEnd   DateTime
+  rating      Int
+  feedback    String
+  goals       String[]
+  isAnonymous Boolean  @default(false)
+
+  employee Employee @relation("ReviewSubject", fields: [employeeId], references: [id])
+  reviewer Employee @relation("ReviewReviewer", fields: [reviewerId], references: [id])
+}
+
+model PayrollRun {
+  id          String   @id @default(cuid())
+  employeeId  String
+  periodStart DateTime
+  periodEnd   DateTime
+  grossPay    Decimal  @db.Decimal(10, 2)
+  deductions  Decimal  @db.Decimal(10, 2)
+  netPay      Decimal  @db.Decimal(10, 2)
+  status      PayrollStatus @default(PROCESSED)
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+}
+
+model Applicant {
+  id          String    @id @default(cuid())
+  firstName   String
+  lastName    String
+  email       String
+  phone       String?
+  position    String
+  resumeUrl   String?
+  status      ApplicantStatus @default(APPLIED)
+  source      String
+  appliedAt   DateTime  @default(now())
+
+  interviews Interview[]
+}
+
+model Interview {
+  id          String   @id @default(cuid())
+  applicantId String
+  scheduledAt DateTime
+  round       Int
+  feedback    String?
+  rating      Int?
+  status      InterviewStatus @default(SCHEDULED)
+
+  applicant Applicant @relation(fields: [applicantId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  HR
+  MANAGER
+  EMPLOYEE
+}
+
+enum LeaveType {
+  VACATION
+  SICK
+  PERSONAL
+  MATERNITY
+  PATERNITY
+  UNPAID
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  DENIED
+  CANCELLED
+}
+
+enum PayrollStatus {
+  DRAFT
+  PROCESSED
+  PAID
+}
+
+enum ApplicantStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  OFFER
+  HIRED
+  REJECTED
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}

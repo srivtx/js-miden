@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Aircraft {
+  id            String @id @default(cuid())
+  model         String
+  manufacturer  String
+  totalSeats    Int
+  economySeats  Int
+  businessSeats Int
+  firstSeats    Int
+
+  flights Flight[]
+}
+
+model Airport {
+  id       String @id @default(cuid())
+  code     String @unique
+  name     String
+  city     String
+  country  String
+  timezone String
+
+  departures Flight[] @relation("DepartureAirport")
+  arrivals   Flight[] @relation("ArrivalAirport")
+}
+
+model Flight {
+  id              String        @id @default(cuid())
+  flightNumber    String
+  aircraftId      String
+  departureAirportId String
+  arrivalAirportId   String
+  departureTime   DateTime
+  arrivalTime     DateTime
+  status          FlightStatus  @default(SCHEDULED)
+  basePrice       Decimal       @db.Decimal(10, 2)
+
+  aircraft        Aircraft      @relation(fields: [aircraftId], references: [id])
+  departureAirport Airport      @relation("DepartureAirport", fields: [departureAirportId], references: [id])
+  arrivalAirport  Airport       @relation("ArrivalAirport", fields: [arrivalAirportId], references: [id])
+
+  bookings        Booking[]
+  seatMap         Seat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([flightNumber, departureTime])
+}
+
+model Seat {
+  id         String @id @default(cuid())
+  flightId   String
+  seatNumber String
+  class      SeatClass
+  isBlocked  Boolean @default(false)
+
+  flight Flight @relation(fields: [flightId], references: [id])
+  booking Booking?
+
+  @@unique([flightId, seatNumber])
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  flightId     String
+  seatId       String        @unique
+  passengerName String
+  passengerEmail String
+  bookingClass SeatClass
+  baggageCount Int           @default(0)
+  totalBaggageWeight Int     @default(0)
+  status       BookingStatus @default(CONFIRMED)
+  checkedIn    Boolean       @default(false)
+  boardingPass String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  flight Flight @relation(fields: [flightId], references: [id])
+  seat   Seat   @relation(fields: [seatId], references: [id])
+}
+
+enum FlightStatus {
+  SCHEDULED
+  BOARDING
+  DEPARTED
+  ARRIVED
+  CANCELLED
+  DELAYED
+}
+
+enum SeatClass {
+  ECONOMY
+  BUSINESS
+  FIRST
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CHECKED_IN
+  BOARDED
+  CANCELLED
+  NO_SHOW
+}

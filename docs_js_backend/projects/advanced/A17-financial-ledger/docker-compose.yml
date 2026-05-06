@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://ledger:ledger@postgres:5432/ledger
+      - REDIS_URL=redis://redis:6379
+      - AUDIT_LOG_PATH=/data/audit
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - audit-logs:/data/audit
+    networks:
+      - ledger-net
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=ledger
+      - POSTGRES_PASSWORD=ledger
+      - POSTGRES_DB=ledger
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - ledger-net
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - ledger-net
+
+  # Audit log backup service
+  audit-backup:
+    image: alpine:latest
+    volumes:
+      - audit-logs:/data/audit:ro
+      - audit-backup:/backup
+    command: >
+      sh -c "
+        echo 'Audit backup service ready' &&
+        while true; do
+          sleep 86400;
+        done
+      "
+    networks:
+      - ledger-net
+
+volumes:
+  postgres-data:
+  audit-logs:
+  audit-backup:
+
+networks:
+  ledger-net:
+    driver: bridge

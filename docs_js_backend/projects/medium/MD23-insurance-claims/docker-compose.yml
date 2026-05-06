@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: md23-postgres
+    environment:
+      POSTGRES_USER: insurance
+      POSTGRES_PASSWORD: insurance123
+      POSTGRES_DB: insurance_claims
+    ports:
+      - "54323:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U insurance -d insurance_claims"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

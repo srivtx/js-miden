@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hotel {
+  id        String   @id @default(cuid())
+  name      String
+  address   String
+  city      String
+  country   String
+  stars     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  rooms Room[]
+}
+
+model RoomType {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  basePrice   Decimal @db.Decimal(10, 2)
+  capacity    Int
+  amenities   String[]
+
+  rooms Room[]
+  pricingTiers PricingTier[]
+}
+
+model Room {
+  id         String @id @default(cuid())
+  hotelId    String
+  roomTypeId String
+  roomNumber String
+  floor      Int
+
+  hotel    Hotel    @relation(fields: [hotelId], references: [id])
+  roomType RoomType @relation(fields: [roomTypeId], references: [id])
+
+  bookings Booking[]
+  holds    ReservationHold[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([hotelId, roomNumber])
+}
+
+model PricingTier {
+  id         String   @id @default(cuid())
+  roomTypeId String
+  name       String
+  multiplier Decimal  @db.Decimal(3, 2)
+  startDate  DateTime
+  endDate    DateTime
+
+  roomType RoomType @relation(fields: [roomTypeId], references: [id])
+}
+
+model Booking {
+  id            String            @id @default(cuid())
+  roomId        String
+  guestEmail    String
+  guestName     String
+  checkIn       DateTime
+  checkOut      DateTime
+  totalPrice    Decimal           @db.Decimal(10, 2)
+  status        BookingStatus     @default(CONFIRMED)
+  cancellationPolicy String       @default("STANDARD")
+  refundAmount  Decimal?          @db.Decimal(10, 2)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  room Room @relation(fields: [roomId], references: [id])
+}
+
+model ReservationHold {
+  id        String   @id @default(cuid())
+  roomId    String
+  heldUntil DateTime
+  createdAt DateTime @default(now())
+
+  room Room @relation(fields: [roomId], references: [id])
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW
+}
